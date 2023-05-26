@@ -18,11 +18,11 @@ const users = require("./json/users.json");
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithEmail = function (email) {
-  console.log("email", email)
+  console.log("email", email);
   return pool
     .query(`SELECT * FROM users WHERE email = $1`, [email])
     .then((result) => {
-      console.log("result", result)
+      console.log("result", result);
       if (result.rows.length === 0) {
         return null;
       }
@@ -62,12 +62,12 @@ const addUser = function (user) {
   user.id = userId;
 
   return pool
-    .query(`INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *`,
+    .query(
+      `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *`,
       [user.name, user.email, user.password]
     )
     .then((result) => {
       if (result.rows.length === 0) {
-        
         return null;
       }
       return result.rows;
@@ -85,7 +85,21 @@ const addUser = function (user) {
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function (guest_id, limit = 10) {
-  return getAllProperties(null, 2);
+  return pool
+    .query(
+      `SELECT properties.* 
+  FROM properties
+  JOIN reservations
+  ON reservations.property_id = properties.id 
+  WHERE reservations.guest_id = $1
+  GROUP BY reservations.id, properties.id
+  ORDER BY start_date
+  LIMIT $2`,
+      [guest_id, limit]
+    )
+    .then((result) => {
+      return result.rows;
+    });
 };
 
 /// Properties
