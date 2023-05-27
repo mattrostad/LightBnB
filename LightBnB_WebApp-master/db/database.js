@@ -218,16 +218,17 @@ const addProperty = function (property) {
       property.country,
       property.parking_spaces,
       property.number_of_bathrooms,
-      property.number_of_bedrooms
+      property.number_of_bedrooms,
     ];
 
     // Execute the query using the connection pool
-    pool.query(query, values)
-      .then(result => {
+    pool
+      .query(query, values)
+      .then((result) => {
         // Resolve the promise with the saved property
         resolve(result.rows[0]);
       })
-      .catch(error => {
+      .catch((error) => {
         // Reject the promise with the error
         reject(error);
       });
